@@ -1,0 +1,8 @@
+../Core/Src/main.c:60:6:cleanRGB_LEDColor	3
+../Core/Src/main.c:74:6:setRGB_LEDColor	9
+../Core/Src/main.c:99:5:main	2
+../Core/Src/main.c:153:6:SystemClock_Config	4
+../Core/Src/main.c:196:13:MX_ADC1_Init	3
+../Core/Src/main.c:243:13:MX_GPIO_Init	1
+../Core/Src/main.c:300:6:HAL_GPIO_EXTI_Callback	2
+../Core/Src/main.c:311:6:Error_Handler	1
