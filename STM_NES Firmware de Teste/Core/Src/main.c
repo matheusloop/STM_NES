@@ -43,7 +43,9 @@
 ADC_HandleTypeDef hadc1;
 
 /* USER CODE BEGIN PV */
-uint16_t num1 = 0, num2 = 0, dir = 0;
+uint32_t num1 = 0, num2 = 0, dir = 1;
+uint32_t adcValues[] = {0, 0};
+uint8_t convIndex = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -123,17 +125,16 @@ int main(void)
   MX_GPIO_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-  HAL_ADC_Start(&hadc1);
-
+  HAL_ADCEx_Calibration_Start(&hadc1);
+  HAL_ADC_Start_IT(&hadc1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-
-	  if(dir){num1 = HAL_ADC_GetValue(&hadc1);}
-	  else{num2 = HAL_ADC_GetValue(&hadc1);}
+	  num1 = adcValues[0];
+	  num2 = adcValues[1];
 
 	  setRGB_LEDColor(num1/1343 == 0, num1/1343 == 1, num1/1343 == 2, 1);
 	  setRGB_LEDColor(num2/1343 == 0, num2/1343 == 1, num2/1343 == 2, 2);
@@ -224,7 +225,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_55CYCLES_5;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -300,6 +301,12 @@ static void MX_GPIO_Init(void)
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	if(GPIO_Pin == BUTTON_A_Pin){
 		dir = !dir;
+	}
+}
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
+	if (hadc->Instance == ADC1) {
+		num1 = HAL_ADC_GetValue(hadc);
 	}
 }
 /* USER CODE END 4 */

@@ -57,6 +57,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define JOY_X_Pin GPIO_PIN_0
+#define JOY_X_GPIO_Port GPIOA
 #define JOY_SW_Pin GPIO_PIN_2
 #define JOY_SW_GPIO_Port GPIOA
 #define JOY_SW_EXTI_IRQn EXTI2_IRQn
