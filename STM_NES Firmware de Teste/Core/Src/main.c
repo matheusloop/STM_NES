@@ -314,8 +314,8 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : JOY_SW_Pin */
   GPIO_InitStruct.Pin = JOY_SW_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(JOY_SW_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LED1_R_Pin LED1_G_Pin LED1_B_Pin LED2_R_Pin */
