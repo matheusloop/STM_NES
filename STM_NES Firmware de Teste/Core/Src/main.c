@@ -41,16 +41,17 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+ADC_HandleTypeDef hadc2;
 
 /* USER CODE BEGIN PV */
-uint32_t num1 = 0, num2 = 0, dir = 1;
-uint32_t adcValues[] = {0, 0};
-uint8_t convIndex = 0;
+uint8_t num1 = 0, num2 = 0, dir = 1;
+uint16_t adcValue_X = 0, adcValue_Y = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_ADC2_Init(void);
 static void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
 
@@ -65,7 +66,7 @@ void cleanRGB_LEDColor(uint8_t address){
 		HAL_GPIO_WritePin(LED1_G_GPIO_Port, LED1_G_Pin, 1);
 		HAL_GPIO_WritePin(LED1_B_GPIO_Port, LED1_B_Pin, 1);
 	}
-	else if(address == 2){
+	if(address == 2){
 		HAL_GPIO_WritePin(LED2_R_GPIO_Port, LED2_R_Pin, 1);
 		HAL_GPIO_WritePin(LED2_G_GPIO_Port, LED2_G_Pin, 1);
 		HAL_GPIO_WritePin(LED2_B_GPIO_Port, LED2_B_Pin, 1);
@@ -82,12 +83,12 @@ void setRGB_LEDColor(uint8_t  red, uint8_t  green, uint8_t  blue, uint8_t addres
 		if(green){HAL_GPIO_WritePin(LED1_G_GPIO_Port, LED1_G_Pin, 0);}
 		if(blue) {HAL_GPIO_WritePin(LED1_B_GPIO_Port, LED1_B_Pin, 0);}
 	}
-	else if(address == 2){
+	if(address == 2){
 		if(red)  {HAL_GPIO_WritePin(LED2_R_GPIO_Port, LED2_R_Pin, 0);}
 		if(green){HAL_GPIO_WritePin(LED2_G_GPIO_Port, LED2_G_Pin, 0);}
 		if(blue) {HAL_GPIO_WritePin(LED2_B_GPIO_Port, LED2_B_Pin, 0);}
 	}
-	else {}
+	else{}
 }
 
 
@@ -123,23 +124,28 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_ADC2_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-  HAL_ADCEx_Calibration_Start(&hadc1);
   HAL_ADC_Start_IT(&hadc1);
+  HAL_ADC_Start_IT(&hadc2);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-	  num1 = adcValues[0];
-	  num2 = adcValues[1];
 
-	  setRGB_LEDColor(num1/1343 == 0, num1/1343 == 1, num1/1343 == 2, 1);
-	  setRGB_LEDColor(num2/1343 == 0, num2/1343 == 1, num2/1343 == 2, 2);
-	  HAL_Delay(200);
+  while (1){
 
+	  if(dir){
+		  num2 = adcValue_X/1365;
+		  num1 = adcValue_Y/1365;
+	  }
+	  else{
+		  num1 = adcValue_X/1365;
+		  num2 = adcValue_Y/1365;
+	  }
+	  setRGB_LEDColor(num1 == 0, num1 == 1, num1 == 2, 1);
+	  setRGB_LEDColor(num2 == 0, num2 == 1, num2 == 2, 2);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -225,7 +231,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_55CYCLES_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -233,6 +239,53 @@ static void MX_ADC1_Init(void)
   /* USER CODE BEGIN ADC1_Init 2 */
 
   /* USER CODE END ADC1_Init 2 */
+
+}
+
+/**
+  * @brief ADC2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_ADC2_Init(void)
+{
+
+  /* USER CODE BEGIN ADC2_Init 0 */
+
+  /* USER CODE END ADC2_Init 0 */
+
+  ADC_ChannelConfTypeDef sConfig = {0};
+
+  /* USER CODE BEGIN ADC2_Init 1 */
+
+  /* USER CODE END ADC2_Init 1 */
+
+  /** Common config
+  */
+  hadc2.Instance = ADC2;
+  hadc2.Init.ScanConvMode = ADC_SCAN_DISABLE;
+  hadc2.Init.ContinuousConvMode = ENABLE;
+  hadc2.Init.DiscontinuousConvMode = DISABLE;
+  hadc2.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc2.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+  hadc2.Init.NbrOfConversion = 1;
+  if (HAL_ADC_Init(&hadc2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_1;
+  sConfig.Rank = ADC_REGULAR_RANK_1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
+  if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN ADC2_Init 2 */
+
+  /* USER CODE END ADC2_Init 2 */
 
 }
 
@@ -279,11 +332,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : BUTTON_A_Pin */
-  GPIO_InitStruct.Pin = BUTTON_A_Pin;
+  /*Configure GPIO pins : BUTTON_B_Pin BUTTON_A_Pin */
+  GPIO_InitStruct.Pin = BUTTON_B_Pin|BUTTON_A_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(BUTTON_A_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI2_IRQn, 0, 0);
@@ -302,12 +355,21 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	if(GPIO_Pin == BUTTON_A_Pin){
 		dir = !dir;
 	}
+	else if(GPIO_Pin == BUTTON_B_Pin){
+		dir = !dir;
+	}
+	else if(GPIO_Pin == JOY_SW_Pin){
+		dir = !dir;
+	}
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 	if (hadc->Instance == ADC1) {
-		num1 = HAL_ADC_GetValue(hadc);
-	}
+    	adcValue_X = HAL_ADC_GetValue(hadc);
+    }
+	else if (hadc->Instance == ADC2) {
+    	adcValue_Y = HAL_ADC_GetValue(hadc);
+    }
 }
 /* USER CODE END 4 */
 

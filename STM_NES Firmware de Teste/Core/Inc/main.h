@@ -59,6 +59,8 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define JOY_X_Pin GPIO_PIN_0
 #define JOY_X_GPIO_Port GPIOA
+#define JOY_Y_Pin GPIO_PIN_1
+#define JOY_Y_GPIO_Port GPIOA
 #define JOY_SW_Pin GPIO_PIN_2
 #define JOY_SW_GPIO_Port GPIOA
 #define JOY_SW_EXTI_IRQn EXTI2_IRQn
@@ -74,6 +76,9 @@ void Error_Handler(void);
 #define LED2_G_GPIO_Port GPIOB
 #define LED2_B_Pin GPIO_PIN_1
 #define LED2_B_GPIO_Port GPIOB
+#define BUTTON_B_Pin GPIO_PIN_8
+#define BUTTON_B_GPIO_Port GPIOB
+#define BUTTON_B_EXTI_IRQn EXTI9_5_IRQn
 #define BUTTON_A_Pin GPIO_PIN_9
 #define BUTTON_A_GPIO_Port GPIOB
 #define BUTTON_A_EXTI_IRQn EXTI9_5_IRQn

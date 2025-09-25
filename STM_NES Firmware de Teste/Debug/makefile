@@ -60,8 +60,8 @@ all: main-build
 main-build: STM_NES_Code.elf secondary-outputs
 
 # Tool invocations
-STM_NES_Code.elf STM_NES_Code.map: $(OBJS) $(USER_OBJS) C:\Users\Matheus\ Lucas\Documents\GitHub\STM_NES\STM_NES\ Firmware\ de\ Teste\STM32F103C6TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "STM_NES_Code.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\Matheus Lucas\Documents\GitHub\STM_NES\STM_NES Firmware de Teste\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="STM_NES_Code.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+STM_NES_Code.elf STM_NES_Code.map: $(OBJS) $(USER_OBJS) C:\Users\Matheus\Documents\GitHub\STM_NES\STM_NES\ Firmware\ de\ Teste\STM32F103C6TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "STM_NES_Code.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\Matheus\Documents\GitHub\STM_NES\STM_NES Firmware de Teste\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="STM_NES_Code.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
