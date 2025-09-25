@@ -21,7 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "fonts.h"
+#include "ssd1306.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,11 +44,14 @@
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc2;
 
+I2C_HandleTypeDef hi2c1;
+
 TIM_HandleTypeDef htim1;
 
 /* USER CODE BEGIN PV */
-uint8_t num1 = 0, num2 = 0, dir = 1, playSong = 0;
-uint16_t adcValue_X = 0, adcValue_Y = 0, freqPWM = 20;
+uint8_t num1 = 0, num2 = 0, playSong = 0;
+uint8_t led1_ON = 0, led2_ON = 0;
+uint16_t adcValue_X = 0, adcValue_Y = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -56,6 +60,7 @@ static void MX_GPIO_Init(void);
 static void MX_ADC2_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_TIM1_Init(void);
+static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -110,6 +115,8 @@ void PWM_Set(TIM_HandleTypeDef *htim, uint32_t channel, uint32_t freq, float dut
     __HAL_TIM_SET_COMPARE(htim, channel, ccr);
 }
 
+
+
 /* USER CODE END 0 */
 
 /**
@@ -144,10 +151,22 @@ int main(void)
   MX_ADC2_Init();
   MX_ADC1_Init();
   MX_TIM1_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   HAL_ADC_Start_IT(&hadc1);
   HAL_ADC_Start_IT(&hadc2);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+
+  SSD1306_Init();
+
+  SSD1306_GotoXY (0,0);
+  SSD1306_Puts ("    STM    ", &Font_11x18, 1);
+  SSD1306_GotoXY (0, 20);
+  SSD1306_Puts ("  N. E. S. ", &Font_11x18, 1);
+  SSD1306_GotoXY (0, 40);
+  SSD1306_Puts ("   2025.1  ", &Font_11x18, 1);
+  SSD1306_UpdateScreen();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -155,19 +174,25 @@ int main(void)
 
   while (1){
 
-	  if(dir){
-		  num2 = adcValue_X/1365;
-		  num1 = adcValue_Y/1365;
-	  }
-	  else{
+	  // Liga o LED1 e permite controle pelo eixo X do joystic
+	  if(led1_ON){
 		  num1 = adcValue_X/1365;
-		  num2 = adcValue_Y/1365;
+		  setRGB_LEDColor(num1 == 0, num1 == 1, num1 == 2, 1);
 	  }
+	  // Desliga o LED1
+	  else{setRGB_LEDColor(0, 0, 0, 1);}
 
-	  freqPWM = 20 + adcValue_X;
+	  // Liga o LED2 e permite controle pelo eixo Y do joystic
+	  if(led2_ON){
+		  num2 = adcValue_Y/1365;
+		  setRGB_LEDColor(num2 == 0, num2 == 1, num2 == 2, 2);
+	  }
+	  // Desliga o LED2
+	  else{setRGB_LEDColor(0, 0, 0, 2);}
 
-	  setRGB_LEDColor(num1 == 0, num1 == 1, num1 == 2, 1);
-	  setRGB_LEDColor(num2 == 0, num2 == 1, num2 == 2, 2);
+	  //Toca uma nota com base no joystick quando preciona botão do joystick
+	  if(playSong){PWM_Set(&htim1, TIM_CHANNEL_1, adcValue_X+20, 10.0f);}
+	  else{PWM_Set(&htim1, TIM_CHANNEL_1, 100, 0.0f);}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -312,6 +337,40 @@ static void MX_ADC2_Init(void)
 }
 
 /**
+  * @brief I2C1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C1_Init(void)
+{
+
+  /* USER CODE BEGIN I2C1_Init 0 */
+
+  /* USER CODE END I2C1_Init 0 */
+
+  /* USER CODE BEGIN I2C1_Init 1 */
+
+  /* USER CODE END I2C1_Init 1 */
+  hi2c1.Instance = I2C1;
+  hi2c1.Init.ClockSpeed = 400000;
+  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
+  hi2c1.Init.OwnAddress1 = 0;
+  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c1.Init.OwnAddress2 = 0;
+  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C1_Init 2 */
+
+  /* USER CODE END I2C1_Init 2 */
+
+}
+
+/**
   * @brief TIM1 Initialization Function
   * @param None
   * @retval None
@@ -449,14 +508,17 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
+	//Muda o estado do LED1
 	if(GPIO_Pin == BUTTON_A_Pin){
-		PWM_Set(&htim1, TIM_CHANNEL_1, freqPWM, 10.0f);
+		led1_ON = !led1_ON;
 	}
+	//Muda o estado do LED2
 	else if(GPIO_Pin == BUTTON_B_Pin){
-		PWM_Set(&htim1, TIM_CHANNEL_1, freqPWM, 0.0f);
+		led2_ON = !led2_ON;
 	}
+	//Muda o estado do Buzzer
 	else if(GPIO_Pin == JOY_SW_Pin){
-		dir = !dir;
+		playSong = !playSong;
 	}
 }
 
