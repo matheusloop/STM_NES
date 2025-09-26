@@ -1,0 +1,13 @@
+../Core/Src/main.c:71:6:cleanRGB_LEDColor	3
+../Core/Src/main.c:85:6:setRGB_LEDColor	9
+../Core/Src/main.c:102:6:PWM_Set	4
+../Core/Src/main.c:126:5:main	4
+../Core/Src/main.c:207:6:SystemClock_Config	4
+../Core/Src/main.c:250:13:MX_ADC1_Init	3
+../Core/Src/main.c:297:13:MX_ADC2_Init	3
+../Core/Src/main.c:344:13:MX_I2C1_Init	2
+../Core/Src/main.c:378:13:MX_TIM1_Init	7
+../Core/Src/main.c:453:13:MX_GPIO_Init	1
+../Core/Src/main.c:510:6:HAL_GPIO_EXTI_Callback	4
+../Core/Src/main.c:525:6:HAL_ADC_ConvCpltCallback	3
+../Core/Src/main.c:539:6:Error_Handler	1
